@@ -1,2 +1,2 @@
-# Emergency Dice Addon Example
-This is an example for adding dice effects
+# Night of the Living Mimic
+Dead Bodys Revive
