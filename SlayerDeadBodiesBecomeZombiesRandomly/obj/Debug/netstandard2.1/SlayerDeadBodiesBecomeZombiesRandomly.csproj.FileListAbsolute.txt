@@ -116,3 +116,4 @@ C:\Users\andre\Desktop\SlayerDeadBodiesBecomeZombiesRandomly\SlayerDeadBodiesBec
 C:\Users\andre\Desktop\SlayerDeadBodiesBecomeZombiesRandomly\SlayerDeadBodiesBecomeZombiesRandomly\bin\Debug\netstandard2.1\LethalConfig.pdb
 C:\Users\andre\Desktop\SlayerDeadBodiesBecomeZombiesRandomly\SlayerDeadBodiesBecomeZombiesRandomly\bin\Debug\netstandard2.1\SDBBZR.pdb
 C:\Users\andre\Desktop\SlayerDeadBodiesBecomeZombiesRandomly\SlayerDeadBodiesBecomeZombiesRandomly\obj\Debug\netstandard2.1\SDBBZR.pdb
+C:\Users\andre\Desktop\SlayerDeadBodiesBecomeZombiesRandomly\SlayerDeadBodiesBecomeZombiesRandomly\obj\Debug\netstandard2.1\SlayerDeadBodiesBecomeZombiesRandomly.sourcelink.json

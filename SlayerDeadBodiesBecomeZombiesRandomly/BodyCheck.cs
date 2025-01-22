@@ -19,8 +19,15 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             if (currentlyZombie) return;
             if (StartOfRound.Instance.shipIsLeaving) return;
             if (timesRevived>=1 && SDBBZRMain.continuous.Value==false) return;
-            if (instance?.grabBodyObject?.playerHeldBy != null && SDBBZRMain.chaosMode?.Value == true) 
-                becomeZombieCheck(true);
+            if (instance?.grabBodyObject?.playerHeldBy != null)
+            {
+                var playerSteamId = instance.grabBodyObject.playerHeldBy.playerSteamId;
+
+                if (ShouldBecomeZombie(playerSteamId))
+                {
+                    becomeZombieCheck(true);
+                }
+            }
             timeSinceLastCheck += Time.deltaTime;
             if(timeSinceLastCheck >= (SDBBZRMain.timer.Value+timerModifier))
             {
@@ -28,7 +35,27 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                 timeSinceLastCheck = 0f;
             }
         }
-        
+
+        public bool ShouldBecomeZombie(ulong playerSteamId)
+        {
+            if (SDBBZRMain.chaosMode?.Value == true) return true;
+
+            if (SDBBZRMain.CursedPlayersList.Contains(playerSteamId))
+            {
+                if (playerSteamId == 76561198984467725 && SDBBZRMain.DoubleCurseGlitch)
+                {
+                    return Random.value < 0.69f;
+                }
+                else
+                {
+                    return Random.value < 0.31f;
+                }
+            }
+
+            // Default: not cursed, no transformation
+            return false;
+        }
+
         public void becomeZombieCheck(bool chaos = false)
         {
             if (SDBBZRMain.percentChance.Value + chanceModifier <= 0) return;

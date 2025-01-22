@@ -1,4 +1,5 @@
 ﻿using GameNetcodeStuff;
+using SlayerDeadBodiesBecomeZombiesRandomly.Patches;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,16 +51,30 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(mask, out var networkObj))
             {
                 GameObject obj = networkObj.gameObject;
-                EnemyAI eai = obj.GetComponent<EnemyAI>();
-                eai.enemyHP = health;
-                eai.isEnemyDead = false;
-                obj.SetActive(false);
-                obj.SetActive(true);
-                if (SDBBZRMain.funnyMode?.Value == false)
+                var oldmm = obj.GetComponent<MaskedMaker>();
+                var otr = oldmm.timesRevived;
+                var pos = obj.transform.position;
+                var rot = obj.transform.rotation;
+                if (IsHost)
                 {
-                    eai.creatureAnimator.SetBool("Stunned", value: false);
-                    eai.creatureAnimator.SetBool("Dead", value: false);
+                    obj.GetComponent<NetworkObject>().Despawn(); 
+                    GameObject gameObject = Instantiate(Misc.getEnemyByName("Masked").enemyType.enemyPrefab, pos, rot);
+                    gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
+                    RoundManager.Instance.SpawnedEnemies.Add(gameObject.GetComponent<EnemyAI>());
+                    NetworkObjectReference netObj = gameObject.GetComponentInChildren<NetworkObject>();
+                    var mm = gameObject.GetComponent<MaskedMaker>();
+                    mm.timesRevived = otr;
                 }
+                //EnemyAI eai = obj.GetComponent<EnemyAI>();
+                //eai.enemyHP = health;
+                //eai.isEnemyDead = false;
+                //obj.SetActive(false);
+                //obj.SetActive(true);
+                //if (SDBBZRMain.funnyMode?.Value == false)
+                //{
+                //    eai.creatureAnimator.SetBool("Stunned", value: false);
+                //    eai.creatureAnimator.SetBool("Dead", value: false);
+                //}
             }
 
         }

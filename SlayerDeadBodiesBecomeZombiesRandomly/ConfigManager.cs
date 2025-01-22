@@ -23,7 +23,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
 
             var maskTurnBoolField = new BoolCheckBoxConfigItem(SDBBZRMain.maskTurn, false);
 
-            var funnyModeBoolField = new BoolCheckBoxConfigItem(SDBBZRMain.funnyMode, false);
+            //var funnyModeBoolField = new BoolCheckBoxConfigItem(SDBBZRMain.funnyMode, false);
 
             var chaosModeBoolField = new BoolCheckBoxConfigItem(SDBBZRMain.chaosMode, false);
 
@@ -32,7 +32,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             LethalConfigManager.AddConfigItem(continuousBoolField);
             LethalConfigManager.AddConfigItem(chanceDecreaseIntField);
             LethalConfigManager.AddConfigItem(maskTurnBoolField);
-            LethalConfigManager.AddConfigItem(funnyModeBoolField);
+            //LethalConfigManager.AddConfigItem(funnyModeBoolField);
             LethalConfigManager.AddConfigItem(chaosModeBoolField);
         }
 

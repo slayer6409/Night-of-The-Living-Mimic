@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Slayer\'s Dead Bodies Become Zombies Randomly")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e75dae82e3a42932729ff8c8540d7c1edff528e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SDBBZR")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SDBBZR")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -12,10 +12,14 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly.Patches
         private const string BaseCommand = "=="; 
         private static readonly HashSet<ulong> AllowedSteamIds = new HashSet<ulong>
         {
-            76561198077184650,
-            76561199094139351,
-            76561198164429786,
-            76561198984467725
+            76561198077184650, //Me
+            76561199094139351, //Lizzie
+            76561198164429786, //Rodrigo
+            76561198984467725, //Glitch
+            76561198044500483, //s1ckboy
+            76561198383757792, //Wesley
+            76561198086325047, //lunxara
+            76561198993437314  //funo
         };
 
         [HarmonyPatch("SubmitChat_performed")]

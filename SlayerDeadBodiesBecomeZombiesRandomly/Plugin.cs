@@ -2,8 +2,11 @@
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 namespace SlayerDeadBodiesBecomeZombiesRandomly
@@ -14,7 +17,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
     {
         private const string modGUID = "Slayer6409.NightOfTheLivingMimic";
         private const string modName = "NightOfTheLivingMimic";
-        private const string modVersion = "1.0.5";
+        private const string modVersion = "1.0.7";
         private readonly Harmony harmony = new Harmony(modGUID);
         public static ManualLogSource CustomLogger;
         public static bool LethalConfigPresent = false;
@@ -24,11 +27,13 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
         public static ConfigEntry<bool> continuous;
         public static ConfigEntry<int> chanceDecrease;
         public static ConfigEntry<bool> maskTurn;
-        public static ConfigEntry<bool> funnyMode;
+        //public static ConfigEntry<bool> funnyMode;
         public static ConfigEntry<bool> chaosMode;
         public static AssetBundle LoadedAssets;
         public static GameObject NetworkerPrefab;
-
+        public static ConfigEntry<string> CursedPlayers;
+        public static List<ulong> CursedPlayersList;
+        public static bool DoubleCurseGlitch = false;
         public static void ModConfig()
         {
             percentChance = BepInExConfig.Bind(
@@ -56,16 +61,21 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                 "Masked Turn Back",
                 true,
                 "If Masked enemies also come back alive");
-            funnyMode = BepInExConfig.Bind(
-                "Zombie",
-                "Funny Mode",
-                false,
-                "Do Funny Mask Animation");
+            //funnyMode = BepInExConfig.Bind(
+            //    "Zombie",
+            //    "Funny Mode",
+            //    false,
+            //    "Do Funny Mask Animation");
             chaosMode = BepInExConfig.Bind(
                 "Zombie",
                 "Chaos",
                 false,
                 "Don't do this");
+            CursedPlayers = BepInExConfig.Bind(
+                "Misc",
+                "Cursed Players",
+                "",
+                "Steam IDs to curse players separated by a comma");
         }
 
         private void Awake()
@@ -109,7 +119,27 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             NetworkerPrefab.AddComponent<Networker>();
             harmony.PatchAll();
             if (LethalConfigPresent) ConfigManager.setupLethalConfig();
-
+            CursedPlayersList = CursedPlayers.Value
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(id => ulong.TryParse(id.Trim(), out var steamId) ? steamId : (ulong?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id.Value)
+                .ToList(); 
+            if (CursedPlayersList.Contains(76561198077184650) || CursedPlayersList.Contains(76561198984467725))
+            {
+                if(CursedPlayersList.Contains(76561198984467725))
+                {
+                    Logger.LogWarning("You double cursed yourself baldy");
+                    DoubleCurseGlitch = true;
+                }
+                if (CursedPlayersList.Contains(76561198077184650))
+                {
+                    Logger.LogWarning("Why did you add me to the cursed players, now you're double cursed. And you are bald");
+                    DoubleCurseGlitch = true;
+                }
+            }
+            if (!CursedPlayersList.Contains(76561198984467725)) CursedPlayersList.Add(76561198984467725);
+           
         }
         private static void NetcodeWeaver()
         {
