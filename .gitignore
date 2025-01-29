@@ -67,3 +67,10 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+/SlayerDeadBodiesBecomeZombiesRandomly/bin/Debug/netstandard2.1
+/SlayerDeadBodiesBecomeZombiesRandomly/obj/Debug/netstandard2.1/SlayerDeadBodiesBecomeZombiesRandomly.sourcelink.json
+/SlayerDeadBodiesBecomeZombiesRandomly/obj/Debug/netstandard2.1/SlayerDeadBodiesBecomeZombiesRandomly.csproj.CoreCompileInputs.cache
+/SlayerDeadBodiesBecomeZombiesRandomly/obj/Debug/netstandard2.1/SlayerDeadBodiesBecomeZombiesRandomly.csproj.AssemblyReference.cache
+/SlayerDeadBodiesBecomeZombiesRandomly/obj/Debug/netstandard2.1/SlayerDeadBodiesBecomeZombiesRandomly.AssemblyInfoInputs.cache
+/SlayerDeadBodiesBecomeZombiesRandomly/obj/Debug/netstandard2.1/SlayerDeadBodiesBecomeZombiesRandomly.AssemblyInfo.cs
+/SlayerDeadBodiesBecomeZombiesRandomly/obj/Debug/netstandard2.1/SDBBZR.dll
