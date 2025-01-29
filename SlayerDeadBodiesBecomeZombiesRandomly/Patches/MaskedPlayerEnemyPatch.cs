@@ -30,7 +30,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly.Patches
 
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(MaskedPlayerEnemy), "Start")]
         public static void startStuff(MaskedPlayerEnemy __instance)
         {

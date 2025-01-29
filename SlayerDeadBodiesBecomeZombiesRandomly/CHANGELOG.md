@@ -1,3 +1,33 @@
+-   **1.0.15**
+    - Fixed Cursed Players and Chat thing 
+    - Players turned into mimics now should teleport correctly :D
+    
+-   **1.0.14**
+    - I forgor to change something
+    - Woops :D
+    
+-   **1.0.13**
+    - Added a delay for dropping items on pickup to fix potential softlock
+
+-   **1.0.12**
+    - Last change for today (I hope)
+    - Added the config option by request, shouldn't do much for most people though
+
+-   **1.0.11**
+    - Fixed some NRE with bodies
+    - Added Null logging to help with finding the source of the issues :P
+
+-   **1.0.10**
+    - Fixed another issue :P
+
+-   **1.0.9**
+    - Made a timer for debug tool
+    - Host can now use it by default
+    - Fixed some other issues too
+    
+-   **1.0.8**
+    - Fixed NRE With Mask reviving
+
 -   **1.0.7**
     - Fixed Readme and Version Number
    

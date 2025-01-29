@@ -15,16 +15,19 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
     [BepInDependency("ainavt.lc.lethalconfig", BepInDependency.DependencyFlags.SoftDependency)]
     public class SDBBZRMain : BaseUnityPlugin
     {
+
         private const string modGUID = "Slayer6409.NightOfTheLivingMimic";
         private const string modName = "NightOfTheLivingMimic";
-        private const string modVersion = "1.0.7";
+        private const string modVersion = "1.0.15";
         private readonly Harmony harmony = new Harmony(modGUID);
         public static ManualLogSource CustomLogger;
         public static bool LethalConfigPresent = false;
         public static ConfigFile BepInExConfig = null;
         public static ConfigEntry<float> percentChance;
         public static ConfigEntry<int> timer;
+        public static ConfigEntry<int> DebugCooldown;
         public static ConfigEntry<bool> continuous;
+        public static ConfigEntry<bool> ShowDebugChatboxes;
         public static ConfigEntry<int> chanceDecrease;
         public static ConfigEntry<bool> maskTurn;
         //public static ConfigEntry<bool> funnyMode;
@@ -33,7 +36,13 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
         public static GameObject NetworkerPrefab;
         public static ConfigEntry<string> CursedPlayers;
         public static List<ulong> CursedPlayersList;
-        public static bool DoubleCurseGlitch = false;
+        public static bool DoubleCurseGlitch = false; 
+        public static readonly HashSet<ulong> SuperCursedIDS = new HashSet<ulong>
+        {
+            76561198984467725, //Glitch
+            76561198086325047 //lunxara
+        };
+
         public static void ModConfig()
         {
             percentChance = BepInExConfig.Bind(
@@ -76,6 +85,16 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                 "Cursed Players",
                 "",
                 "Steam IDs to curse players separated by a comma");
+            ShowDebugChatboxes = BepInExConfig.Bind(
+                "Misc",
+                "Show Debug Chatboxes",
+                true,
+                "Makes it to where you can see the Debug Chatboxes or not");
+            DebugCooldown = BepInExConfig.Bind(
+                "Misc",
+                "Debug Cooldown",
+                10,
+                "How long the cooldown for the debug tool is in seconds");
         }
 
         private void Awake()
@@ -129,7 +148,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             {
                 if(CursedPlayersList.Contains(76561198984467725))
                 {
-                    Logger.LogWarning("You double cursed yourself baldy");
+                    Logger.LogWarning("Why did you double curse yourself? Are you Bald?");
                     DoubleCurseGlitch = true;
                 }
                 if (CursedPlayersList.Contains(76561198077184650))

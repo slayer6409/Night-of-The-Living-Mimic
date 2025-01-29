@@ -51,19 +51,20 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(mask, out var networkObj))
             {
                 GameObject obj = networkObj.gameObject;
-                var oldmm = obj.GetComponent<MaskedMaker>();
-                var otr = oldmm.timesRevived;
-                var pos = obj.transform.position;
-                var rot = obj.transform.rotation;
                 if (IsHost)
                 {
+                    var oldmm = obj.GetComponent<MaskedMaker>();
+                    int otr = oldmm.timesRevived;
+                    Vector3 pos = obj.transform.position;
+                    Quaternion rot = obj.transform.rotation;
                     obj.GetComponent<NetworkObject>().Despawn(); 
                     GameObject gameObject = Instantiate(Misc.getEnemyByName("Masked").enemyType.enemyPrefab, pos, rot);
                     gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
+                    MaskedPlayerEnemy masks = obj.GetComponent<MaskedPlayerEnemy>();
+                    masks.mimickingPlayer = oldmm.instance.mimickingPlayer;
                     RoundManager.Instance.SpawnedEnemies.Add(gameObject.GetComponent<EnemyAI>());
                     NetworkObjectReference netObj = gameObject.GetComponentInChildren<NetworkObject>();
-                    var mm = gameObject.GetComponent<MaskedMaker>();
-                    mm.timesRevived = otr;
+                    StartCoroutine(doStuff(otr, netObj.NetworkObjectId));
                 }
                 //EnemyAI eai = obj.GetComponent<EnemyAI>();
                 //eai.enemyHP = health;
@@ -75,6 +76,17 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                 //    eai.creatureAnimator.SetBool("Stunned", value: false);
                 //    eai.creatureAnimator.SetBool("Dead", value: false);
                 //}
+            }
+
+        }
+        public IEnumerator doStuff(int revive, ulong mask)
+        {
+            yield return new WaitForSeconds(1f);
+            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(mask, out var networkObj))
+            {
+                GameObject obj = networkObj.gameObject;
+                var mm = obj.GetComponent<MaskedMaker>();
+                mm.timesRevived = revive;
             }
 
         }
@@ -94,42 +106,98 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void sendMessageAllServerRPC(string a, string b, bool warning)
+        public void sendMessageSpecificServerRPC(string a, string b, bool warning, string name) 
         {
-            sendMessageAllClientRPC(a, b, warning);
+            sendMessageSpecificClientRPC(a, b, warning, name);
+        }
+        [ClientRpc]
+        public void sendMessageSpecificClientRPC(string a, string b, bool warning, string name)
+        {
+            if(StartOfRound.Instance.localPlayerController.playerUsername == name) Misc.SafeTipMessage(a, b, warning);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void sendMessageAllServerRPC(string a, string b, bool warning, bool forced = false)
+        {
+            sendMessageAllClientRPC(a, b, warning, forced);
         }
 
         [ClientRpc]
-        public void sendMessageAllClientRPC(string a, string b, bool warning)
+        public void sendMessageAllClientRPC(string a, string b, bool warning, bool forced=false)
         {
+            if(SDBBZRMain.ShowDebugChatboxes.Value==false && !forced) return;
             Misc.SafeTipMessage(a, b, warning);
         }
 
         [ClientRpc]
         public void spawnBodyClientRPC(ulong body, Vector3 position, ulong ID)
         {
-
             var player = Misc.GetPlayerByUserID(body);
-            if(player.deadBody == null) return;
+            if (player == null)
+            {
+                SDBBZRMain.CustomLogger.LogWarning($"Player with ID {body} not found.");
+                return;
+            }
+
+            if (player.deadBody == null)
+            {
+                SDBBZRMain.CustomLogger.LogWarning($"Player with ID {body} does not have a deadBody.");
+                return;
+            }
+
             player.deadBody.gameObject.SetActive(true);
+
+            if (StartOfRound.Instance == null)
+            {
+                SDBBZRMain.CustomLogger.LogWarning("StartOfRound.Instance is null.");
+                return;
+            }
+
+            if (StartOfRound.Instance.localPlayerController == null)
+            {
+                SDBBZRMain.CustomLogger.LogWarning("StartOfRound.Instance.localPlayerController is null.");
+                return;
+            }
+
             if (StartOfRound.Instance.localPlayerController.IsHost)
             {
                 var bc = player.deadBody.GetComponent<BodyCheck>();
+                if (bc == null)
+                {
+                    SDBBZRMain.CustomLogger.LogWarning("BodyCheck component is missing on deadBody.");
+                    return;
+                }
+
                 bc.currentlyZombie = false;
                 bc.timesRevived++;
-                if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(ID, out var networkObj))
+
+                if (NetworkManager.Singleton == null)
                 {
-                    GameObject obj2 = networkObj.gameObject;
+                    SDBBZRMain.CustomLogger.LogWarning("NetworkManager.Singleton is null.");
+                    return;
+                }
+
+                if (NetworkManager.Singleton.SpawnManager == null)
+                {
+                    SDBBZRMain.CustomLogger.LogWarning("NetworkManager.Singleton.SpawnManager is null.");
+                    return;
+                }
+
+                if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(ID, out var networkObj))
+                {
+                    SDBBZRMain.CustomLogger.LogWarning($"No spawned object found for ID {ID}.");
                 }
             }
-            
+
             player.deadBody.deactivated = false;
             player.deadBody.SetBodyPartsKinematic(false);
             player.deadBody.attachedTo = null;
             player.deadBody.attachedLimb = null;
             player.deadBody.secondaryAttachedLimb = null;
             player.deadBody.secondaryAttachedTo = null;
+
             player.deadBody.SetRagdollPositionSafely(position, disableSpecialEffects: true);
+
             if (StartOfRound.Instance.localPlayerController.IsHost)
             {
                 if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(ID, out var networkObj))
@@ -139,32 +207,42 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                 }
             }
         }
+        public IEnumerator doDelay(PlayerControllerB player)
+        {
+            yield return new WaitForSeconds(0.5f);
+            var phb = player.deadBody.grabBodyObject.playerHeldBy;
+            if (phb != null) phb.DropAllHeldItemsServerRpc();
+            else if (player.deadBody.grabBodyObject.isHeldByEnemy)
+            {
+                player.deadBody.grabBodyObject.DiscardItemFromEnemy();
+            }
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void fixMaskedServerRpc(ulong user, ulong masked)
         {
             fixMaskedClientRpc(user, masked);
         }
+
         [ClientRpc]
         public void fixMaskedClientRpc(ulong user, ulong masked)
         {
-            var player = Misc.GetPlayerByUserID(user); 
-            if (player.deadBody.grabBodyObject.isHeld)
+            var player = Misc.GetPlayerByUserID(user);
+            if (player.deadBody != null)
             {
-                var phb = player.deadBody.grabBodyObject.playerHeldBy;
-                if (phb != null)
+                if(player.deadBody.grabBodyObject != null)
                 {
-                    dropSpecificPlayersItemsClientRPC(phb.actualClientId);
-                }
-                else if (player.deadBody.grabBodyObject.isHeldByEnemy)
-                {
-                    player.deadBody.grabBodyObject.DiscardItemFromEnemy();
+                    if (player.deadBody.grabBodyObject.isHeld)
+                    {
+                        StartOfRound.Instance.StartCoroutine(doDelay(player));
+                    }
                 }
             }
-
             player.deadBody.DeactivateBody(false); 
             if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(masked, out var networkObj))
             {
                 GameObject obj2 = networkObj.gameObject;
+                player.redirectToEnemy = obj2.GetComponent<EnemyAI>();
                 if (StartOfRound.Instance.localPlayerController.IsHost)
                 {
                     MaskedPlayerEnemy mask = obj2.GetComponent<MaskedPlayerEnemy>(); 
@@ -173,7 +251,6 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                     mask.mimickingPlayer = player;
                 }
             }
-
         }
         Transform FindChildByName(Transform parent, string name)
         {

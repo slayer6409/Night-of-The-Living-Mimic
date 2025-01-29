@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -12,21 +13,26 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
         public bool currentlyZombie = false;
         public DeadBodyInfo instance;
         public static int timerModifier = 0; 
-        public static int chanceModifier = 0; 
+        public static int chanceModifier = 0;
+        public bool doingCheck = false;
         public void Update()
         {
             if (!StartOfRound.Instance.localPlayerController.IsHost) return;
             if (currentlyZombie) return;
             if (StartOfRound.Instance.shipIsLeaving) return;
             if (timesRevived>=1 && SDBBZRMain.continuous.Value==false) return;
-            if (instance?.grabBodyObject?.playerHeldBy != null)
+            if (instance?.grabBodyObject?.playerHeldBy != null && doingCheck!=false)
             {
+                doingCheck = true;
                 var playerSteamId = instance.grabBodyObject.playerHeldBy.playerSteamId;
-
                 if (ShouldBecomeZombie(playerSteamId))
                 {
                     becomeZombieCheck(true);
                 }
+            }
+            else
+            {
+                doingCheck=false;
             }
             timeSinceLastCheck += Time.deltaTime;
             if(timeSinceLastCheck >= (SDBBZRMain.timer.Value+timerModifier))
@@ -36,24 +42,18 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             }
         }
 
+        
+
         public bool ShouldBecomeZombie(ulong playerSteamId)
         {
             if (SDBBZRMain.chaosMode?.Value == true) return true;
-
+            var valueToReturn = false;
             if (SDBBZRMain.CursedPlayersList.Contains(playerSteamId))
             {
-                if (playerSteamId == 76561198984467725 && SDBBZRMain.DoubleCurseGlitch)
-                {
-                    return Random.value < 0.69f;
-                }
-                else
-                {
-                    return Random.value < 0.31f;
-                }
+                valueToReturn = Random.value > 0.31f;
+                if (SDBBZRMain.SuperCursedIDS.Contains(playerSteamId) && SDBBZRMain.DoubleCurseGlitch == true) valueToReturn = Random.value > 0.69f; 
             }
-
-            // Default: not cursed, no transformation
-            return false;
+            return valueToReturn;
         }
 
         public void becomeZombieCheck(bool chaos = false)
@@ -63,10 +63,10 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             Debug.Log(randomNumber);
             randomNumber += timesRevived * SDBBZRMain.chanceDecrease.Value;
             if (randomNumber < (SDBBZRMain.percentChance.Value+chanceModifier)) setZombie();
-            if (chaos) setZombie();
+            if (chaos) setZombie(true);
         }
 
-        public void setZombie()
+        public void setZombie(bool delay = false)
         {
             timeSinceLastCheck = 0f;
             currentlyZombie=true;
@@ -76,7 +76,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             NetworkObjectReference netObj = gameObject.GetComponentInChildren<NetworkObject>();
             var zb = gameObject.AddComponent<zombieBody>();
             zb.bodyID = owner;
-            Networker.Instance.fixMaskedClientRpc(instance.playerScript.actualClientId, netObj.NetworkObjectId); 
+            Networker.Instance.fixMaskedServerRpc(instance.playerScript.actualClientId, netObj.NetworkObjectId); 
            
         }
     }internal class zombieBody : MonoBehaviour
