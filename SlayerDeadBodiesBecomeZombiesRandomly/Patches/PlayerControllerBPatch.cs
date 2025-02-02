@@ -32,5 +32,13 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly.Patches
             }
             Networker.Instance.addComponentToBodyServerRPC(__instance.actualClientId);
         }
+        
+        [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
+        [HarmonyPostfix]
+        public static void ConnectClientToPlayerObject(PlayerControllerB __instance)
+        {
+            if (__instance.IsHost) SDBBZRMain.canDoTwitch = true;
+            else Networker.Instance.SyncTwitchUserServerRPC();
+        }
     }
 }

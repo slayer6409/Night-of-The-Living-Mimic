@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
-using static UnityEngine.EventSystems.EventTrigger;
+using UnityEngine;
 
 namespace SlayerDeadBodiesBecomeZombiesRandomly
 {
-    internal class Misc
+    internal class Misc : MonoBehaviour
     {
         public static SpawnableEnemyWithRarity getEnemyByName(string name)
         {
@@ -95,6 +95,28 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             }
             return null;
         }
+        public static PlayerControllerB GetRandomAlivePlayer()
+        {
+            List<PlayerControllerB> validPlayers = new List<PlayerControllerB>();
+
+            foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
+            {
+                if (IsPlayerAliveAndControlled(player))
+                    validPlayers.Add(player);
+            }
+
+            if (validPlayers.Count == 1) return validPlayers[0];
+
+            return validPlayers[UnityEngine.Random.Range(0, validPlayers.Count)];
+        }
+        public static bool IsPlayerAliveAndControlled(PlayerControllerB player)
+        {
+            return !player.isPlayerDead &&
+                    player.isActiveAndEnabled &&
+                    player.IsSpawned &&
+                    player.isPlayerControlled;
+        }
+
         public static PlayerControllerB GetClosestPlayerByName(string name)
         {
             PlayerControllerB closestPlayer = null;

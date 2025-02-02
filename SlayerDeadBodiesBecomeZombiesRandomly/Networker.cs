@@ -14,6 +14,10 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
     internal class Networker : NetworkBehaviour
     {
         public static Networker Instance { get; private set; }
+        public int chanceModifier = 0;
+        public bool canChat = true;
+        public HashSet<ulong> ForcedRemovalTwitch = new HashSet<ulong>();
+        public HashSet<ulong> ForcedAddedTwitch = new HashSet<ulong>();
         public override void OnNetworkSpawn()
         {
             Instance = this;
@@ -37,6 +41,29 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             var e = player.deadBody.gameObject.AddComponent<BodyCheck>();
             e.owner = body;
             e.instance = player.deadBody;
+        }
+
+        [ServerRpc(RequireOwnership =false)]
+        public void cooldownToggleServerRPC(bool state)
+        {
+            cooldownToggleClientRPC(state);
+        }
+        [ClientRpc]
+        public void cooldownToggleClientRPC(bool state) 
+        {
+            canChat = state;
+        }
+        [ServerRpc(RequireOwnership = false)]
+        public void cooldownStartServerRPC()
+        {
+            cooldownToggleServerRPC(false);
+            StartCoroutine(cooldown());
+        }
+        IEnumerator cooldown()
+        {
+            if (!IsHost) yield return false;
+            yield return new WaitForSeconds(60);
+            cooldownToggleServerRPC(true);
         }
 
         [ServerRpc(RequireOwnership =false)]
@@ -104,6 +131,57 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             yield return new WaitForSeconds(0.2f);
             player.DiscardHeldObject();
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SyncTwitchUserServerRPC()
+        {
+            if (SDBBZRMain.twitchBlacklistMode.Value)
+            {
+                foreach (var player in StartOfRound.Instance.allPlayerScripts)
+                {
+                    if (!SDBBZRMain.deniedTwitchUsers.Contains(player.playerSteamId))
+                    {
+                        AllowTwitchUserClientRPC(player.playerSteamId);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var player in StartOfRound.Instance.allPlayerScripts)
+                {
+                    if(SDBBZRMain.allowedTwitchUsers.Contains(player.playerSteamId))
+                    {
+                        AllowTwitchUserClientRPC(player.playerSteamId);
+                    }
+                }   
+            }
+        }
+        [ClientRpc]
+        public void AllowTwitchUserClientRPC(ulong playerSteamID,bool FromCommand = false)
+        {
+            if(!FromCommand) if(ForcedRemovalTwitch.Contains(playerSteamID)) return;
+            if (StartOfRound.Instance.localPlayerController.playerSteamId == playerSteamID || StartOfRound.Instance.localPlayerController.IsHost)
+            {
+                SDBBZRMain.canDoTwitch = true;
+                ForcedAddedTwitch.Add(playerSteamID);
+                if(ForcedRemovalTwitch.Contains(playerSteamID))ForcedRemovalTwitch.Remove(playerSteamID);
+            }
+        }
+        [ClientRpc]
+        public void DenyTwitchUserClientRPC(ulong playerSteamID, bool FromCommand = false)
+        {
+            if(!FromCommand) if(ForcedAddedTwitch.Contains(playerSteamID)) return;
+            if (StartOfRound.Instance.localPlayerController.playerSteamId == playerSteamID)
+            {
+                if (playerSteamID != 76561198077184650)
+                {
+                    SDBBZRMain.canDoTwitch = false;
+                    ForcedRemovalTwitch.Add(playerSteamID);
+                    if(ForcedAddedTwitch.Contains(playerSteamID))ForcedAddedTwitch.Remove(playerSteamID);
+                }
+            }
+        }
+
 
         [ServerRpc(RequireOwnership = false)]
         public void sendMessageSpecificServerRPC(string a, string b, bool warning, string name) 
@@ -207,15 +285,27 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                 }
             }
         }
+        [ServerRpc(RequireOwnership =false)]
+        public void spawnMimicOnPlayerServerRPC(ulong playerID, int amount)
+        {
+            var player = Misc.GetPlayerByUserID(playerID);
+            for (int i = 0; i < amount; i++) 
+            {
+                GameObject gameObject = Instantiate(Misc.getEnemyByName("Masked").enemyType.enemyPrefab, player.transform.position, Quaternion.identity);
+                gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
+                RoundManager.Instance.SpawnedEnemies.Add(gameObject.GetComponent<EnemyAI>());
+            }
+        }
         public IEnumerator doDelay(PlayerControllerB player)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.65f);
             var phb = player.deadBody.grabBodyObject.playerHeldBy;
             if (phb != null) phb.DropAllHeldItemsServerRpc();
             else if (player.deadBody.grabBodyObject.isHeldByEnemy)
             {
                 player.deadBody.grabBodyObject.DiscardItemFromEnemy();
             }
+            player.deadBody.DeactivateBody(false);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -237,8 +327,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                         StartOfRound.Instance.StartCoroutine(doDelay(player));
                     }
                 }
-            }
-            player.deadBody.DeactivateBody(false); 
+            } 
             if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(masked, out var networkObj))
             {
                 GameObject obj2 = networkObj.gameObject;

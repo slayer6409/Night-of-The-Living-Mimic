@@ -32,6 +32,9 @@
       <Reference Include="BepInEx">
         <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\core\BepInEx.dll</HintPath>
       </Reference>
+      <Reference Include="com.github.zehsteam.TwitchChatAPI">
+        <HintPath>..\..\..\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\DiceSoftDependencies\BepInEx\plugins\Zehs-TwitchChatAPI\com.github.zehsteam.TwitchChatAPI.dll</HintPath>
+      </Reference>
       <Reference Include="LethalConfig">
         <HintPath>..\..\..\AppData\Roaming\com.kesomannen.gale\lethal-company\profiles\DiceSoftDependencies\BepInEx\plugins\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
       </Reference>

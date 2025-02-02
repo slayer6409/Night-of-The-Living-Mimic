@@ -13,7 +13,6 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
         public bool currentlyZombie = false;
         public DeadBodyInfo instance;
         public static int timerModifier = 0; 
-        public static int chanceModifier = 0;
         public bool doingCheck = false;
         public void Update()
         {
@@ -21,18 +20,21 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             if (currentlyZombie) return;
             if (StartOfRound.Instance.shipIsLeaving) return;
             if (timesRevived>=1 && SDBBZRMain.continuous.Value==false) return;
-            if (instance?.grabBodyObject?.playerHeldBy != null && doingCheck!=false)
+            if (instance?.grabBodyObject?.playerHeldBy != null)
             {
-                doingCheck = true;
-                var playerSteamId = instance.grabBodyObject.playerHeldBy.playerSteamId;
-                if (ShouldBecomeZombie(playerSteamId))
+                if (!doingCheck)
                 {
-                    becomeZombieCheck(true);
+                    doingCheck = true;
+                    var playerSteamId = instance.grabBodyObject.playerHeldBy.playerSteamId;
+                    if (ShouldBecomeZombie(playerSteamId))
+                    {
+                        becomeZombieCheck(true);
+                    }
                 }
             }
             else
             {
-                doingCheck=false;
+                doingCheck = false;
             }
             timeSinceLastCheck += Time.deltaTime;
             if(timeSinceLastCheck >= (SDBBZRMain.timer.Value+timerModifier))
@@ -51,22 +53,22 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             if (SDBBZRMain.CursedPlayersList.Contains(playerSteamId))
             {
                 valueToReturn = Random.value > 0.31f;
-                if (SDBBZRMain.SuperCursedIDS.Contains(playerSteamId) && SDBBZRMain.DoubleCurseGlitch == true) valueToReturn = Random.value > 0.69f; 
+                if (SDBBZRMain.SuperCursedIDS.Contains(playerSteamId)||SDBBZRMain.CursedPlayersList.Contains(76561198077184650)) valueToReturn = Random.value > 0.69f; 
             }
             return valueToReturn;
         }
 
         public void becomeZombieCheck(bool chaos = false)
         {
-            if (SDBBZRMain.percentChance.Value + chanceModifier <= 0) return;
+            if (SDBBZRMain.percentChance.Value + Networker.Instance.chanceModifier <= 0) return;
             int randomNumber = UnityEngine.Random.Range(0, 101);
             Debug.Log(randomNumber);
             randomNumber += timesRevived * SDBBZRMain.chanceDecrease.Value;
-            if (randomNumber < (SDBBZRMain.percentChance.Value+chanceModifier)) setZombie();
-            if (chaos) setZombie(true);
+            if (randomNumber < (SDBBZRMain.percentChance.Value+ Networker.Instance.chanceModifier)) setZombie();
+            if (chaos) setZombie();
         }
 
-        public void setZombie(bool delay = false)
+        public void setZombie()
         {
             timeSinceLastCheck = 0f;
             currentlyZombie=true;

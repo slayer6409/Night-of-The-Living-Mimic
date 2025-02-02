@@ -1,3 +1,46 @@
+-   **1.1.0**
+    - Fixed Twitch for Clients (I think)
+      - If so There is a new config option to prevent trolling
+      - It is host only to allow users to use twitch integration based off steam IDs
+      - There is also a command (host only) to allow or deny people from using it if they abuse the system
+      - ==ALLOW username or ==DENY username
+      - Host will always have access unless they use ==DENY on their own in game username
+    - Added Tiers to Subscribes for spawning mimics
+      - Added Config options for those
+    - Fixed the == Chat Not showing up
+    - If I broke anything I am sorry I don't have a way to test other clients for twitch stuff
+      - At least not late at night lol
+      - So if it is broken use the version 1.0.21 and submit a bug report on my github lol
+    - And yes I don't use version numbers fully right I know... xD
+      - I meant to up the second number when I added Twitch integration
+
+-   **1.0.21**
+    - Fixed Broken BALD command
+    
+-   **1.0.20**
+    - Fixed some Twitch stuff
+    - Fixed some other stuff
+    
+-   **1.0.19**
+    - Updated some twitch things to fix some errors
+    - Actually fixed the == chat thing
+
+-   **1.0.18**
+    - Updated to add dependency for Twitch Chat API
+      - You can disable that mod if you don't want it and this mod will work fine
+
+-   **1.0.17**
+    - Added ability to steamID users to use the chatDebug Tool
+      - To use it do this == topBar & bottomBar
+      - or ==! topBar & bottomBar
+      - the ! added makes it a red warning label
+    - There is a config option to hide most of these chatboxes (it's client sided)
+
+-   **1.0.16**
+    - Fixed some issues
+    - Added some things
+    - do good
+
 -   **1.0.15**
     - Fixed Cursed Players and Chat thing 
     - Players turned into mimics now should teleport correctly :D
