@@ -75,6 +75,8 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
             GameObject gameObject = Instantiate(Misc.getEnemyByName("Masked").enemyType.enemyPrefab, instance.grabBodyObject.transform.position, Quaternion.Euler(new Vector3(0f, 0f, 0f)));
             gameObject.GetComponentInChildren<NetworkObject>().Spawn(destroyWithScene: true);
             RoundManager.Instance.SpawnedEnemies.Add(gameObject.GetComponent<EnemyAI>());
+            MaskedPlayerEnemy mask = gameObject.GetComponent<MaskedPlayerEnemy>(); 
+            mask.mimickingPlayer = instance.playerScript;
             NetworkObjectReference netObj = gameObject.GetComponentInChildren<NetworkObject>();
             var zb = gameObject.AddComponent<zombieBody>();
             zb.bodyID = owner;

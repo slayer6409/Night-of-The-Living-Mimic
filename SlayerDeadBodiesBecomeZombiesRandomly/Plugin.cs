@@ -18,7 +18,7 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
     {
         private const string modGUID = "Slayer6409.NightOfTheLivingMimic";
         private const string modName = "NightOfTheLivingMimic";
-        private const string modVersion = "1.1.0";
+        private const string modVersion = "1.1.8";
         private readonly Harmony harmony = new Harmony(modGUID);
         public static ManualLogSource CustomLogger;
         public static bool LethalConfigPresent = false;

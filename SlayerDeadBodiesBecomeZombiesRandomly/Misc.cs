@@ -33,12 +33,10 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
                 foreach (SelectableLevel level in StartOfRound.Instance.levels)
                 {
 
-                    enemy = level.Enemies.FirstOrDefault(x => x.enemyType.enemyName.ToLower() == name.ToLower());
-                    if (enemy == null)
-                        enemy = level.DaytimeEnemies.FirstOrDefault(x => x.enemyType.enemyName.ToLower() == name.ToLower());
-                    if (enemy == null)
-                        enemy = level.OutsideEnemies.FirstOrDefault(x => x.enemyType.enemyName.ToLower() == name.ToLower());
-
+                    enemy = level.Enemies.FirstOrDefault(x => string.Equals(x.enemyType.enemyName, name, StringComparison.OrdinalIgnoreCase))
+                    ?? level.DaytimeEnemies.FirstOrDefault(x => string.Equals(x.enemyType.enemyName, name, StringComparison.OrdinalIgnoreCase))
+                    ?? level.OutsideEnemies.FirstOrDefault(x => string.Equals(x.enemyType.enemyName, name, StringComparison.OrdinalIgnoreCase));
+                    if (enemy != null) break;
 
                 }
             }
@@ -121,14 +119,26 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly
         {
             PlayerControllerB closestPlayer = null;
             int smallestDistance = int.MaxValue;
+            string upperName = name.ToUpperInvariant(); // Using Invariant for better performance
 
             foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
             {
-                int distance = CalculateLevenshteinDistance(name, player.playerUsername);
+                string playerName = player.playerUsername.ToUpperInvariant();
+        
+                // Skip obviously bad matches quickly
+                if (Math.Abs(upperName.Length - playerName.Length) > smallestDistance) 
+                    continue;
+
+                int distance = CalculateLevenshteinDistance(upperName, playerName);
+        
                 if (distance < smallestDistance)
                 {
                     smallestDistance = distance;
                     closestPlayer = player;
+
+                    // Optional: Stop early if we find an exact match
+                    if (smallestDistance == 0) 
+                        break;
                 }
             }
 

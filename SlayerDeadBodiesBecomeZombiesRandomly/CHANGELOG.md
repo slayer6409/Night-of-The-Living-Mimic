@@ -1,10 +1,44 @@
+-   **1.1.8**
+    - Fix for targeting players with the twitch integration
+    
+-   **1.1.7**
+    - Fixed errors when trying to spawn in things that don't exist
+    
+-   **1.1.6**
+    - Fixed some bugs with the chat function
+    - Fixed some Twitch errors (whoops my bad)
+    
+-   **1.1.5**
+    - More refactoring and optimizations thanks to a few helpful people :D
+    - Added some cool things
+    - Fixed wsm to not accept capital letters
+    - Added an actual readme and not the empty placeholder one
+    - As always if I broke something go back to the previous version lol
+    
+-   **1.1.4**
+    - Refactored The TwitchHandler to be more readable 
+    - Added a SpawnQueue for Spawning Mimics
+      - If it breaks go back to 1.1.3 
+    - Secret things >:D
+    - Am gonna wait a day before I github this just so I can troll someone specific
+
+-   **1.1.3**
+    - Figured out why bodies weren't depspawning when a mimic was spawned
+    - Fixed it (most likely)
+    
+-   **1.1.2**
+    - Limited the max length of the top text for twitch
+    
+-   **1.1.1**
+    - Fixed Some Client Side Stuff
+
 -   **1.1.0**
     - Fixed Twitch for Clients (I think)
-      - If so There is a new config option to prevent trolling
-      - It is host only to allow users to use twitch integration based off steam IDs
-      - There is also a command (host only) to allow or deny people from using it if they abuse the system
-      - ==ALLOW username or ==DENY username
-      - Host will always have access unless they use ==DENY on their own in game username
+    - If so There is a new config option to prevent trolling
+    - It is host only to allow users to use twitch integration based off steam IDs
+    - There is also a command (host only) to allow or deny people from using it if they abuse the system
+    - ==ALLOW username or ==DENY username
+    - Host will always have access unless they use ==DENY on their own in game username
     - Added Tiers to Subscribes for spawning mimics
       - Added Config options for those
     - Fixed the == Chat Not showing up

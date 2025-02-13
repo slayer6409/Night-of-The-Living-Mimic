@@ -1,12 +1,13 @@
 {
   "name": "NightOfTheLivingMimic",
-  "version_number": "1.1.0",
+  "version_number": "1.1.8",
   "website_url": "https://github.com/slayer6409/Night-of-The-Living-Mimic",
   "description": "Dead Bodies Become Zombies Randomly",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2100",
     "Evaisa-HookGenPatcher-0.0.5",
     "Evaisa-LethalLib-0.15.1",
-    "Zehs-TwitchChatAPI-1.1.0"
+    "Zehs-TwitchChatAPI-1.1.0",
+    "VirusTLNR-MaskedInvisFix-0.0.2"
   ]
 }

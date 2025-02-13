@@ -17,12 +17,9 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly.Patches
         [HarmonyPrefix]
         private static bool ChatStuff(HUDManager __instance)
         {
-            // Get the current chat text from the HUDManager's chat input field
             string chatMessage = __instance.chatTextField.text;
             bool isWarning = false;
             bool isForced = false;
-
-            // Check if the message starts with the BaseCommand
             if (chatMessage.StartsWith(BaseCommand))
             {
                 if (chatMessage.StartsWith(BaseCommand + "ALLOW ", StringComparison.OrdinalIgnoreCase) && __instance.localPlayer.IsHost)
@@ -96,7 +93,6 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly.Patches
                                     {
                                         if (!__instance.localPlayer.IsHost)
                                         {
-                                            canDoThing = false;
                                             StartOfRound.Instance.StartCoroutine(Timer());
                                         }
                                     }
@@ -108,7 +104,6 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly.Patches
                                     {
                                         if (!__instance.localPlayer.IsHost)
                                         {
-                                            canDoThing = false;
                                             StartOfRound.Instance.StartCoroutine(Timer());
                                         }
                                     }
@@ -129,14 +124,15 @@ namespace SlayerDeadBodiesBecomeZombiesRandomly.Patches
                         Misc.SafeTipMessage("Error", "Missing '&' in Command");
                     }
                 }
-                
-                __instance.chatTextField.text = "";
+                    
+                    __instance.chatTextField.text = "";
             }
             return true;
         }
 
         public static IEnumerator Timer()
         {
+            canDoThing = false;
             yield return new WaitForSeconds(SDBBZRMain.DebugCooldown.Value);
             canDoThing = true;
         }
